@@ -1,7 +1,6 @@
-// src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '../stores/authStore'; // Verifique o nome do arquivo
-import LoginView from '../pages/LoginView.vue'; 
+import { useAuthStore } from '@/stores/authStore';
+import LoginView from '@/pages/LoginView.vue'; 
 
 const routes = [
   {
@@ -12,28 +11,29 @@ const routes = [
   {
     path: '/register',
     name: 'register',
-    component: () => import('../pages/RegisterView.vue')
+    component: () => import('@/pages/RegisterView.vue')
   },
   {
     path: '/esqueci-senha',
     name: 'esqueci-senha',
-    component: () => import('../pages/ForgotPassword.vue')
+    component: () => import('@/pages/ForgotPassword.vue')
   },
   {
     path: '/lista_de_musicas',
     name: 'lista_de_musicas',
-    component: () => import('../pages/ListaMusica.vue'),
-    meta: { requiresAuth: true }
+    component: () => import('@/pages/ListaMusica.vue'),
+    meta: { requiresAuth: true } // Protegendo a lista de músicas
   },
   {
-    path: '/view-letras/:id', // O ":id" é o que o useRoute() vai ler
+    path: '/view-letras/:id',
     name: 'ViewLetras',
-    component: () => import('@/pages/ViewLetras.vue')
+    component: () => import('@/pages/ViewLetras.vue'),
+    meta: { requiresAuth: true } // Geralmente letras também precisam de login
   },
   {
     path: '/home',
     name: 'home',
-    component: () => import('../pages/HomeView.vue'),
+    component: () => import('@/pages/HomeView.vue'),
     meta: { requiresAuth: true }
   },
   {
@@ -42,22 +42,28 @@ const routes = [
   }
 ];
 
-// VOCÊ PRECISA DESTA PARTE AQUI (que está faltando na imagem 4):
 const router = createRouter({
   history: createWebHistory(),
   routes
 });
 
-// Agora sim o 'router' existe e você pode usar o beforeEach
+// Guarda de navegação (Navigation Guard)
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
-  const isAuthenticated = !!authStore.user; // Use .user que é o que definimos na store
+  
+  // O "!!" converte o objeto user em um valor booleano (true/false)
+  const isAuthenticated = !!authStore.user;
 
+  // 1. Se a rota exige autenticação e o usuário NÃO está logado
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login');
-  } else if (to.path === '/login' && isAuthenticated) {
+  } 
+  // 2. Se o usuário já está logado e tenta ir para o login ou registro
+  else if (isAuthenticated && (to.path === '/login' || to.path === '/register')) {
     next('/home');
-  } else {
+  } 
+  // 3. Caso contrário, segue normalmente
+  else {
     next();
   }
 });
