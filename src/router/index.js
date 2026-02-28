@@ -19,10 +19,22 @@ const routes = [
     component: () => import('@/pages/ForgotPassword.vue')
   },
   {
+    path: '/externo/lista_de_musicas',
+    name: 'externo/lista_de_musicas',
+    component: () => import('@/pages/external/ListaMusicaExt.vue'),
+    meta: { requiresAuth: false } // Externo não exige autenticação
+  },
+  {
     path: '/lista_de_musicas',
     name: 'lista_de_musicas',
     component: () => import('@/pages/ListaMusica.vue'),
     meta: { requiresAuth: true } // Protegendo a lista de músicas
+  },
+  {
+    path: '/externo/view-letras/:id',
+    name: 'ViewLetrasExt',
+    component: () => import('@/pages/external/ViewLetrasExt.vue'),
+    meta: { requiresAuth: false } // Externo não exige autenticação
   },
   {
     path: '/view-letras/:id',
